@@ -1,0 +1,766 @@
+/* playglow.css — Exact visual system matching mocks/playglow/index.html & brief/04-app-spec.md */
+
+:root {
+  --accent: #FFEC27;
+  --ink: #FFF1E8;
+  --dim: rgba(255, 241, 232, 0.56);
+  --faint: rgba(255, 241, 232, 0.14);
+  --glass: rgba(22, 11, 13, 0.5);
+  --glass-strong: rgba(22, 11, 13, 0.78);
+  --bg: #140a0c;
+  --f: "Bricolage Grotesque", system-ui, sans-serif;
+  --m: "JetBrains Mono", ui-monospace, monospace;
+  --big: 44px;
+  --small: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 3D Stage & HUD Overlay */
+.stage-wrap {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+canvas#gl,
+.stage-wrap canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block;
+  image-rendering: pixelated;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#ui a,
+#ui button,
+#ui input,
+#ui label.field,
+#ui .pill,
+#ui .chip,
+#ui .interactive {
+  pointer-events: auto;
+}
+
+.scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  background: linear-gradient(to top, rgba(14, 7, 9, 0.82), rgba(14, 7, 9, 0));
+  pointer-events: none;
+}
+
+.state {
+  display: none;
+}
+
+#ui[data-state="create"] .s-create,
+#ui[data-state="build"] .s-build,
+#ui[data-state="play"] .s-play,
+#ui[data-state="switch"] .s-switch {
+  display: block;
+}
+
+#ui[data-state="play"] .scrim {
+  display: none;
+}
+
+/* Permanent Chrome */
+.wordmark {
+  position: absolute;
+  left: 40px;
+  top: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 800 var(--small)/1 var(--f);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  user-select: none;
+}
+
+.wordmark i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 18px rgba(255, 236, 39, 0.6);
+  display: inline-block;
+}
+
+.credit {
+  position: absolute;
+  right: 40px;
+  top: 34px;
+  font: 500 var(--small)/1 var(--m);
+  color: var(--dim);
+  letter-spacing: -0.02em;
+  user-select: none;
+}
+
+.mute-btn {
+  position: absolute;
+  right: 40px;
+  top: 27px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--glass);
+  color: var(--dim);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  transition: color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mute-btn:hover {
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(255, 241, 232, 0.35);
+}
+
+/* Time of Day Scenery & Cycle Dock */
+.tod-dock {
+  position: absolute;
+  right: 80px;
+  top: 27px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.tod-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 10px 0 8px;
+  border-radius: 9999px;
+  border: 0;
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  font: 500 12px/1 var(--m);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  transition: all 0.15s ease;
+}
+
+.tod-pill:hover {
+  background: var(--glass-strong);
+  box-shadow: inset 0 0 0 1px rgba(255, 241, 232, 0.35);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.tod-pill:active {
+  transform: translateY(0);
+}
+
+.tod-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.tod-text {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tod-badge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 241, 232, 0.12);
+  color: var(--dim);
+}
+
+/* Host Caption Block (Create + Build + Switch) */
+.host {
+  position: absolute;
+  left: 88px;
+  bottom: 96px;
+  width: min(780px, calc(100vw - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.step {
+  font: 500 var(--small)/1 var(--m);
+  color: var(--dim);
+  letter-spacing: -0.02em;
+}
+
+.say {
+  font: 700 var(--big)/1.08 var(--f);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-top: 6px;
+}
+
+/* Pills & Chips */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 26px 0 22px;
+  border-radius: 999px;
+  border: 0;
+  font: 700 var(--small)/1 var(--f);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: transform 0.1s ease, opacity 0.3s ease;
+}
+
+.pill:active {
+  transform: scale(0.96);
+}
+
+.pill.primary {
+  background: var(--accent);
+  color: #1a0c0f;
+  box-shadow: 0 10px 40px -10px rgba(255, 236, 39, 0.55);
+}
+
+.pill.ghost {
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  font: 700 var(--small)/1 var(--f);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip.on {
+  background: var(--accent);
+  color: #1a0c0f;
+  box-shadow: 0 10px 36px -12px rgba(255, 236, 39, 0.6);
+}
+
+.chip-swatches {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(26, 12, 15, 0.35);
+}
+
+/* Text Input Field */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(520px, 100%);
+  height: 56px;
+  padding: 0 8px 0 24px;
+  border-radius: 999px;
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  caret-color: var(--accent);
+  font: 700 var(--small)/1 var(--f);
+  pointer-events: auto;
+}
+
+.field input::placeholder {
+  color: var(--dim);
+}
+
+.field .go {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent);
+  color: #1a0c0f;
+  font: 800 var(--small)/1 var(--f);
+  pointer-events: auto;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Initial Site Boot Loader */
+.boot-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: radial-gradient(circle at 50% 42%, #241118 0%, #140a0c 72%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  opacity: 1;
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.45s;
+  pointer-events: auto;
+}
+
+.boot-loader.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.boot-loader-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font: 800 22px/1 var(--f);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.boot-loader-logo i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 22px rgba(255, 236, 39, 0.85);
+  animation: bootPulse 1.1s ease-in-out infinite alternate;
+}
+
+.boot-loader-bar {
+  width: 168px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 241, 232, 0.12);
+  overflow: hidden;
+}
+
+.boot-loader-bar span {
+  display: block;
+  width: 55%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6e59, #ffec27);
+  animation: bootSlide 1.1s ease-in-out infinite alternate;
+}
+
+.boot-loader-sub {
+  font: 500 12px/1 var(--m);
+  color: var(--dim);
+  letter-spacing: -0.01em;
+}
+
+@keyframes bootPulse {
+  from {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes bootSlide {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(110%);
+  }
+}
+
+/* Floating Status Banner When Playing Classics While Custom Game Builds */
+.build-play-banner {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--glass-strong);
+  box-shadow: inset 0 0 0 1px rgba(255, 236, 39, 0.35), 0 10px 30px rgba(0, 0, 0, 0.45);
+  font: 600 13px/1 var(--m);
+  color: var(--ink);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  pointer-events: auto;
+  z-index: 25;
+  white-space: nowrap;
+}
+
+.build-play-banner .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  animation: bootPulse 0.8s ease-in-out infinite alternate;
+}
+
+/* Play Corner Controls & Fallback Toast */
+.corner {
+  position: absolute;
+  bottom: 40px;
+  transition: opacity 0.35s ease;
+}
+
+.corner.l {
+  left: 40px;
+}
+
+.corner.r {
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.corner.idle {
+  opacity: 0.3;
+}
+
+.corner:hover {
+  opacity: 1;
+}
+
+.fallback-toast {
+  position: fixed;
+  left: 88px;
+  bottom: 96px;
+  z-index: 25;
+  max-width: 560px;
+  pointer-events: none;
+}
+
+.fallback-toast .say {
+  font: 800 32px/1.12 var(--f);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.72);
+}
+
+/* Switch State: Next Game Title + Arrows */
+.next small {
+  display: block;
+  font: 500 var(--small)/1 var(--m);
+  color: var(--dim);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.arrows {
+  display: flex;
+  gap: 10px;
+}
+
+.arrows button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  font: 700 var(--small)/1 var(--f);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.arrows button:active {
+  transform: scale(0.94);
+}
+
+.arrows button.on {
+  background: var(--accent);
+  color: #1a0c0f;
+  box-shadow: none;
+}
+
+/* Touch Controls for Mobile Play State */
+.touch-controls {
+  display: none;
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 88px;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.touch-dpad {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  pointer-events: auto;
+}
+
+.touch-dpad button {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  font: 700 13px/1 var(--m);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.touch-dpad button.up {
+  left: 39px;
+  top: 0;
+}
+.touch-dpad button.down {
+  left: 39px;
+  bottom: 0;
+}
+.touch-dpad button.left {
+  left: 0;
+  top: 39px;
+}
+.touch-dpad button.right {
+  right: 0;
+  top: 39px;
+}
+
+.touch-ab {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.touch-ab button {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--glass);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--faint);
+  font: 800 14px/1 var(--m);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.touch-ab button.btn-a {
+  background: rgba(255, 236, 39, 0.22);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 236, 39, 0.45);
+}
+
+/* Accessibility Focus Ring & Reduced Motion */
+#ui button:focus-visible,
+#ui a:focus-visible,
+#ui label.field:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill,
+  .chip,
+  .corner,
+  .arrows button {
+    transition: none;
+  }
+}
+
+/* Hidden ?debug Telemetry Panel */
+.debug-panel {
+  position: fixed;
+  right: 276px;
+  top: 56px;
+  width: min(380px, calc(100vw - 300px));
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  z-index: 50;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(14, 7, 9, 0.92);
+  border: 1px solid var(--faint);
+  font: 500 11px/1.45 var(--m);
+  color: var(--ink);
+  pointer-events: auto;
+  backdrop-filter: blur(16px);
+}
+
+.debug-panel h3 {
+  font: 700 12px/1.2 var(--m);
+  color: var(--accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.debug-panel pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--dim);
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Phone Breakpoint (matches mocks/playglow/index.html lines 69-75) */
+@media (max-width: 700px) {
+  :root {
+    --big: 26px;
+  }
+  .wordmark {
+    left: 20px;
+    top: 24px;
+  }
+  .credit {
+    right: 20px;
+    top: 24px;
+  }
+  .mute-btn {
+    right: 20px;
+    top: 20px;
+  }
+  .tod-dock {
+    right: 56px;
+    top: 20px;
+  }
+  .tod-text,
+  .tod-badge {
+    display: none;
+  }
+  .tod-pill {
+    padding: 0 7px;
+  }
+  .host {
+    left: 24px;
+    bottom: 40px;
+    gap: 18px;
+  }
+  .corner {
+    bottom: 28px;
+  }
+  .corner.l {
+    left: 20px;
+  }
+  .corner.r {
+    right: 20px;
+  }
+  .pill {
+    height: 50px;
+    padding: 0 20px 0 18px;
+  }
+  .s-create .corner.r {
+    top: 54px;
+    bottom: auto;
+    height: 40px;
+    padding: 0 16px;
+  }
+  #ui[data-state="play"] .touch-controls {
+    display: flex;
+  }
+}
+
+@media (pointer: coarse) {
+  #ui[data-state="play"] .touch-controls {
+    display: flex;
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix Arcade Game Generator - Managed Agent",
+  "description": "Answer four playful questions and play your own custom pixel-art game on a 3D arcade cabinet skinned just for you.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
